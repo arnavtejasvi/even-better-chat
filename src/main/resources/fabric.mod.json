@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "chatoptimizer",
+  "version": "${version}",
+  "name": "Chat Optimizer",
+  "description": "Client-side chat performance and quality-of-life improvements.",
+  "authors": [
+    "arnav"
+  ],
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.arnav.chatoptimizer.ChatOptimizerClient"
+    ]
+  },
+  "mixins": [
+    {
+      "config": "chatoptimizer.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.5",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

@@ -1,0 +1,29 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# Fabric Loom
+.loom/
+remappedSources/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Don't track the pre-compiled JAR once source is added
+# EvenBetterChat-1.0.0.jar

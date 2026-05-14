@@ -1,0 +1,12 @@
+{
+  "key.category.chatoptimizer.general": "Chat Optimizer",
+  "key.chatoptimizer.open_config": "Open Chat Optimizer Config",
+  "screen.chatoptimizer.title": "Chat Optimizer",
+  "screen.chatoptimizer.timestamps": "Timestamps",
+  "screen.chatoptimizer.duplicate_collapse": "Collapse duplicate messages",
+  "screen.chatoptimizer.history_trim": "Trim chat history",
+  "screen.chatoptimizer.open_settings": "Chat Optimizer",
+  "screen.chatoptimizer.history_value": "Chat history cap: %s",
+  "chatoptimizer.repeat_count": "x%s",
+  "gui.done": "Done"
+}
