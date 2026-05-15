@@ -11,7 +11,8 @@ import net.minecraft.client.util.InputUtil;
 
 @Environment(value=EnvType.CLIENT)
 public final class ChatOptimizerKeys {
-    public static final KeyBinding OPEN_CONFIG = KeyBindingHelper.registerKeyBinding((KeyBinding)new KeyBinding("key.chatoptimizer.open_config", InputUtil.Type.KEYSYM, 79, "key.category.chatoptimizer.general"));
+    public static final KeyBinding OPEN_CONFIG = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.chatoptimizer.open_config", InputUtil.Type.KEYSYM, 79, "key.category.chatoptimizer.general"));
+    public static final KeyBinding OPEN_SEARCH = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.chatoptimizer.open_search", InputUtil.Type.KEYSYM, 74, "key.category.chatoptimizer.general"));
 
     private ChatOptimizerKeys() {
     }

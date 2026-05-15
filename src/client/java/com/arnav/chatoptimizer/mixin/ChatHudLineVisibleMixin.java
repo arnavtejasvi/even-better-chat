@@ -8,7 +8,6 @@ import com.arnav.chatoptimizer.ChatTimestampCache;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.hud.ChatHudLine;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.text.OrderedText;
 import net.minecraft.client.gui.hud.MessageIndicator;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,8 +29,6 @@ public class ChatHudLineVisibleMixin {
     @Unique
     private OrderedText chatoptimizer$cachedContent = OrderedText.empty();
     @Unique
-    private int chatoptimizer$cachedTimestampWidth = -1;
-    @Unique
     private long chatoptimizer$renderRevision = -1L;
 
     @Inject(method={"<init>"}, at={@At(value="TAIL")})
@@ -42,22 +39,10 @@ public class ChatHudLineVisibleMixin {
         this.chatoptimizer$rebuildContent();
     }
 
-    @Inject(method={"method_75758"}, at={@At(value="RETURN")}, cancellable=true)
-    private void chatoptimizer$extendWidth(TextRenderer textRenderer, CallbackInfoReturnable<Integer> cir) {
-        if (!ChatOptimizerConfig.showTimestamps) {
-            return;
-        }
-        this.chatoptimizer$ensureContentUpToDate();
-        if (this.chatoptimizer$cachedTimestampWidth < 0) {
-            this.chatoptimizer$cachedTimestampWidth = this.chatoptimizer$timestampEntry.width(textRenderer);
-        }
-        cir.setReturnValue((Object)((Integer)cir.getReturnValue() + this.chatoptimizer$cachedTimestampWidth));
-    }
-
     @Inject(method={"content"}, at={@At(value="RETURN")}, cancellable=true)
     private void chatoptimizer$prefixContent(CallbackInfoReturnable<OrderedText> cir) {
         this.chatoptimizer$ensureContentUpToDate();
-        cir.setReturnValue((Object)this.chatoptimizer$cachedContent);
+        cir.setReturnValue(this.chatoptimizer$cachedContent);
     }
 
     @Unique
@@ -71,10 +56,9 @@ public class ChatHudLineVisibleMixin {
 
     @Unique
     private void chatoptimizer$rebuildContent() {
-        this.chatoptimizer$cachedTimestampWidth = -1;
         if (ChatOptimizerConfig.showTimestamps) {
             this.chatoptimizer$timestampEntry = ChatTimestampCache.get(this.chatoptimizer$timestampMinute);
-            this.chatoptimizer$cachedContent = OrderedText.concat((OrderedText)this.chatoptimizer$timestampEntry.orderedText(), (OrderedText)this.chatoptimizer$baseContent);
+            this.chatoptimizer$cachedContent = OrderedText.concat(this.chatoptimizer$timestampEntry.orderedText(), this.chatoptimizer$baseContent);
         } else {
             this.chatoptimizer$timestampEntry = null;
             this.chatoptimizer$cachedContent = this.chatoptimizer$baseContent;

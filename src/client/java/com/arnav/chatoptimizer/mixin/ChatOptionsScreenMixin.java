@@ -23,10 +23,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ChatOptionsScreenMixin {
     @Inject(method={"initFooter"}, at={@At(value="TAIL")})
     private void chatoptimizer$addConfigButton(CallbackInfo ci) {
-        if (!(this instanceof ChatOptionsScreen)) {
+        if (!((Object)this instanceof ChatOptionsScreen)) {
             return;
         }
-        Screen screen = (Screen)this;
+        Screen screen = (Screen)(Object)this;
         int x = screen.width / 2 - 100;
         int y = screen.height - 52;
         ButtonWidget button = ButtonWidget.builder((Text)Text.translatable((String)"screen.chatoptimizer.open_settings"), widget -> MinecraftClient.getInstance().setScreen((Screen)new ChatOptimizerConfigScreen(screen))).position(x, y).size(200, 20).build();
