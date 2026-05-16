@@ -55,7 +55,7 @@ public class ChatHudMixin {
 
     // ─── Incoming chat messages ───────────────────────────────────────────────
 
-    @Inject(method={"addMessage"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method={"addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V"}, at={@At(value="HEAD")}, cancellable=true)
     private void chatoptimizer$filterMessage(Text message, MessageSignatureData sig,
                                              MessageIndicator indicator, CallbackInfo ci) {
         if (!ChatOptimizerConfig.filterEnabled) return;
@@ -69,7 +69,7 @@ public class ChatHudMixin {
         }
     }
 
-    @Inject(method={"addMessage"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method={"addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V"}, at={@At(value="HEAD")}, cancellable=true)
     private void chatoptimizer$collapseDuplicates(Text message, MessageSignatureData sig,
                                                   MessageIndicator indicator, CallbackInfo ci) {
         if (ci.isCancelled()) return;
@@ -87,7 +87,7 @@ public class ChatHudMixin {
         }
     }
 
-    @Inject(method={"addMessage"}, at={@At(value="TAIL")})
+    @Inject(method={"addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V"}, at={@At(value="TAIL")})
     private void chatoptimizer$trackLastMessage(Text message, MessageSignatureData sig,
                                                 MessageIndicator indicator, CallbackInfo ci) {
         this.chatoptimizer$lastCollapsedMessage  = message.getString();
@@ -95,13 +95,13 @@ public class ChatHudMixin {
         this.chatoptimizer$duplicateCount        = 1;
     }
 
-    @Inject(method={"addMessage"}, at={@At(value="TAIL")})
+    @Inject(method={"addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V"}, at={@At(value="TAIL")})
     private void chatoptimizer$logMessage(Text message, MessageSignatureData sig,
                                           MessageIndicator indicator, CallbackInfo ci) {
         ChatLogger.log(message);
     }
 
-    @Inject(method={"addMessage"}, at={@At(value="TAIL")})
+    @Inject(method={"addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V"}, at={@At(value="TAIL")})
     private void chatoptimizer$bufferForSearch(Text message, MessageSignatureData sig,
                                                MessageIndicator indicator, CallbackInfo ci) {
         ChatSearch.addMessage(message.getString());
