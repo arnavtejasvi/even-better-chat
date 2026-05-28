@@ -100,6 +100,10 @@ public final class ChatOptimizerConfigScreen extends Screen {
             .build(x, top + row * 5, bw, 20, Text.translatable("screen.chatoptimizer.chat_logging"), (btn, v) -> {
                 ChatOptimizerConfig.setChatLoggingEnabled(v); ChatOptimizerConfig.save();
             }));
+        this.addDrawableChild(CyclingButtonWidget.onOffBuilder(ChatOptimizerConfig.urlClickableEnabled)
+            .build(x, top + row * 6, bw, 20, Text.translatable("screen.chatoptimizer.clickable_urls"), (btn, v) -> {
+                ChatOptimizerConfig.setUrlClickableEnabled(v); ChatOptimizerConfig.save();
+            }));
 
         refreshHistoryButtons();
     }
@@ -139,6 +143,14 @@ public final class ChatOptimizerConfigScreen extends Screen {
             .build(x, top + row * 2, bw, 20, Text.translatable("screen.chatoptimizer.timestamp_color"), (btn, i) -> {
                 ChatOptimizerConfig.setTimestampColor(ChatOptimizerConfig.COLOR_VALUES[i]);
                 ChatOptimizerConfig.save();
+            }));
+        this.addDrawableChild(CyclingButtonWidget.onOffBuilder(ChatOptimizerConfig.mentionHighlightEnabled)
+            .build(x, top + row * 4, bw, 20, Text.translatable("screen.chatoptimizer.mention_highlight"), (btn, v) -> {
+                ChatOptimizerConfig.setMentionHighlightEnabled(v); ChatOptimizerConfig.save();
+            }));
+        this.addDrawableChild(CyclingButtonWidget.onOffBuilder(ChatOptimizerConfig.mentionSoundEnabled)
+            .build(x, top + row * 5, bw, 20, Text.translatable("screen.chatoptimizer.mention_sound"), (btn, v) -> {
+                ChatOptimizerConfig.setMentionSoundEnabled(v); ChatOptimizerConfig.save();
             }));
     }
 
