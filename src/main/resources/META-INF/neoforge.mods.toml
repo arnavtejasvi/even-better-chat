@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="MIT"
+
+[[mods]]
+    modId="chatoptimizer"
+    version="${mod_version}"
+    displayName="Even Better Chat"
+    description="Client-side chat quality-of-life improvements: timestamps, duplicate collapse, chat search, filtering, and more."
+
+[[dependencies.chatoptimizer]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1,)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.chatoptimizer]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.1,1.22)"
+    ordering="NONE"
+    side="BOTH"
+
+[[mixins]]
+    config="chatoptimizer.mixins.json"

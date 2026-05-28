@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.arnav.chatoptimizer.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ChatHudMixin",
+    "ChatHudLineVisibleMixin",
+    "ChatOptionsScreenMixin",
+    "ScreenAccessor"
+  ],
+  "minVersion": "0.8"
+}
