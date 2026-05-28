@@ -1,16 +1,21 @@
 package com.arnav.chatoptimizer.mixin;
 
 import com.arnav.chatoptimizer.ChatLogger;
+import com.arnav.chatoptimizer.ChatMentionHandler;
 import com.arnav.chatoptimizer.ChatOptimizerConfig;
 import com.arnav.chatoptimizer.ChatSearch;
+import com.arnav.chatoptimizer.ChatUrlHandler;
 import java.util.List;
 import java.util.Objects;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.gui.hud.MessageIndicator;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.network.message.MessageSignatureData;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -21,6 +26,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(value=EnvType.CLIENT)
@@ -34,6 +40,33 @@ public class ChatHudMixin {
     @Unique private int    chatoptimizer$duplicateCount = 1;
 
     @Shadow private void refresh() {}
+
+    // ─── Mention highlight + URL linkify ─────────────────────────────────────
+
+    @ModifyVariable(
+        method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V",
+        at = @At("HEAD"),
+        argsOnly = true
+    )
+    private Text chatoptimizer$transformIncoming(Text message) {
+        if (ChatOptimizerConfig.urlClickableEnabled) {
+            message = ChatUrlHandler.linkify(message);
+        }
+        if (ChatOptimizerConfig.mentionHighlightEnabled) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            if (client.getSession() != null) {
+                String playerName = client.getSession().getUsername();
+                if (ChatMentionHandler.containsMention(message.getString(), playerName)) {
+                    message = ChatMentionHandler.highlight(message, playerName, ChatOptimizerConfig.mentionHighlightColor);
+                    if (ChatOptimizerConfig.mentionSoundEnabled) {
+                        client.getSoundManager().play(
+                            PositionedSoundInstance.ui(SoundEvents.BLOCK_NOTE_BLOCK_PLING, 1.0f));
+                    }
+                }
+            }
+        }
+        return message;
+    }
 
     // ─── Message history (T-arrow-up) ────────────────────────────────────────
 

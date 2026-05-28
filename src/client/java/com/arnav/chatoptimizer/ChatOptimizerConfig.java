@@ -34,6 +34,14 @@ public final class ChatOptimizerConfig {
     public static volatile int timestampColor = 0x555555;
     public static volatile BracketStyle bracketStyle = BracketStyle.SQUARE;
 
+    // Mentions
+    public static volatile boolean mentionHighlightEnabled = true;
+    public static volatile int     mentionHighlightColor   = 0xFFFF55;
+    public static volatile boolean mentionSoundEnabled     = true;
+
+    // URLs
+    public static volatile boolean urlClickableEnabled = true;
+
     // Filtering
     public static volatile boolean filterEnabled = false;
     public static Set<String> blockedPlayers = new HashSet<>();
@@ -66,6 +74,10 @@ public final class ChatOptimizerConfig {
         timestampFormat            = getEnum(p, "timestampFormat", TimestampFormat.class, TimestampFormat.H24);
         timestampColor             = getHex(p,  "timestampColor", 0x555555);
         bracketStyle               = getEnum(p, "bracketStyle", BracketStyle.class, BracketStyle.SQUARE);
+        mentionHighlightEnabled    = getBool(p, "mentionHighlightEnabled", true);
+        mentionHighlightColor      = getHex(p,  "mentionHighlightColor", 0xFFFF55);
+        mentionSoundEnabled        = getBool(p, "mentionSoundEnabled", true);
+        urlClickableEnabled        = getBool(p, "urlClickableEnabled", true);
         filterEnabled              = getBool(p, "filterEnabled", false);
         blockedPlayers             = new HashSet<>(parseList(p.getProperty("blockedPlayers", "")));
         blockedKeywords            = new ArrayList<>(parseList(p.getProperty("blockedKeywords", "")));
@@ -81,6 +93,10 @@ public final class ChatOptimizerConfig {
         p.setProperty("timestampFormat",           timestampFormat.name());
         p.setProperty("timestampColor",            String.format("%06X", timestampColor));
         p.setProperty("bracketStyle",              bracketStyle.name());
+        p.setProperty("mentionHighlightEnabled",   Boolean.toString(mentionHighlightEnabled));
+        p.setProperty("mentionHighlightColor",     String.format("%06X", mentionHighlightColor));
+        p.setProperty("mentionSoundEnabled",       Boolean.toString(mentionSoundEnabled));
+        p.setProperty("urlClickableEnabled",       Boolean.toString(urlClickableEnabled));
         p.setProperty("filterEnabled",             Boolean.toString(filterEnabled));
         p.setProperty("blockedPlayers",            String.join(",", blockedPlayers));
         p.setProperty("blockedKeywords",           String.join(",", blockedKeywords));
@@ -100,6 +116,9 @@ public final class ChatOptimizerConfig {
     public static void setCollapseDuplicateMessages(boolean v) { collapseDuplicateMessages = v; markRenderDirty(); }
     public static void setTrimChatHistory(boolean v)           { trimChatHistory = v;           markRenderDirty(); }
     public static void setChatLoggingEnabled(boolean v)        { chatLoggingEnabled = v; }
+    public static void setMentionHighlightEnabled(boolean v)  { mentionHighlightEnabled = v; markRenderDirty(); }
+    public static void setMentionSoundEnabled(boolean v)      { mentionSoundEnabled = v; }
+    public static void setUrlClickableEnabled(boolean v)      { urlClickableEnabled = v; markRenderDirty(); }
     public static void setFilterEnabled(boolean v)             { filterEnabled = v; }
 
     public static void setMaxChatHistoryEntries(int v) {

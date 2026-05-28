@@ -40,6 +40,10 @@
   "screen.chatoptimizer.search.title": "Chat Search",
   "screen.chatoptimizer.search.no_results": "No messages found.",
 
+  "screen.chatoptimizer.mention_highlight": "Highlight mentions",
+  "screen.chatoptimizer.mention_sound": "Sound on mention",
+  "screen.chatoptimizer.clickable_urls": "Clickable URLs",
+
   "screen.chatoptimizer.open_settings": "Chat Optimizer",
   "chatoptimizer.repeat_count": "x%s",
   "gui.done": "Done"

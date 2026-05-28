@@ -100,6 +100,10 @@ public final class ChatOptimizerConfigScreen extends Screen {
             .build(x, top + row * 5, bw, 20, Text.translatable("screen.chatoptimizer.chat_logging"), (btn, v) -> {
                 ChatOptimizerConfig.setChatLoggingEnabled(v); ChatOptimizerConfig.save();
             }));
+        this.addDrawableChild(CyclingButtonWidget.onOffBuilder(ChatOptimizerConfig.urlClickableEnabled)
+            .build(x, top + row * 6, bw, 20, Text.translatable("screen.chatoptimizer.clickable_urls"), (btn, v) -> {
+                ChatOptimizerConfig.setUrlClickableEnabled(v); ChatOptimizerConfig.save();
+            }));
 
         refreshHistoryButtons();
     }
@@ -115,30 +119,38 @@ public final class ChatOptimizerConfigScreen extends Screen {
         int top = 36, row = 22, bw = 220, x = cx - bw / 2;
 
         this.addDrawableChild(CyclingButtonWidget.<ChatOptimizerConfig.TimestampFormat>builder(
-            fmt -> Text.translatable("screen.chatoptimizer.format." + fmt.name().toLowerCase()))
+            fmt -> Text.translatable("screen.chatoptimizer.format." + fmt.name().toLowerCase()),
+            ChatOptimizerConfig.timestampFormat)
             .values(List.of(ChatOptimizerConfig.TimestampFormat.H24, ChatOptimizerConfig.TimestampFormat.H12))
-            .initially(ChatOptimizerConfig.timestampFormat)
             .build(x, top, bw, 20, Text.translatable("screen.chatoptimizer.timestamp_format"), (btn, v) -> {
                 ChatOptimizerConfig.setTimestampFormat(v); ChatOptimizerConfig.save();
             }));
 
         this.addDrawableChild(CyclingButtonWidget.<ChatOptimizerConfig.BracketStyle>builder(
-            s -> Text.translatable("screen.chatoptimizer.bracket." + s.name().toLowerCase()))
+            s -> Text.translatable("screen.chatoptimizer.bracket." + s.name().toLowerCase()),
+            ChatOptimizerConfig.bracketStyle)
             .values(List.of(ChatOptimizerConfig.BracketStyle.SQUARE,
                             ChatOptimizerConfig.BracketStyle.ROUND,
                             ChatOptimizerConfig.BracketStyle.NONE))
-            .initially(ChatOptimizerConfig.bracketStyle)
             .build(x, top + row, bw, 20, Text.translatable("screen.chatoptimizer.bracket_style"), (btn, v) -> {
                 ChatOptimizerConfig.setBracketStyle(v); ChatOptimizerConfig.save();
             }));
 
         this.addDrawableChild(CyclingButtonWidget.<Integer>builder(
-            i -> Text.translatable("screen.chatoptimizer.color." + ChatOptimizerConfig.COLOR_KEYS[i]))
+            i -> Text.translatable("screen.chatoptimizer.color." + ChatOptimizerConfig.COLOR_KEYS[i]),
+            colorIndex())
             .values(List.of(0, 1, 2, 3, 4, 5))
-            .initially(colorIndex())
             .build(x, top + row * 2, bw, 20, Text.translatable("screen.chatoptimizer.timestamp_color"), (btn, i) -> {
                 ChatOptimizerConfig.setTimestampColor(ChatOptimizerConfig.COLOR_VALUES[i]);
                 ChatOptimizerConfig.save();
+            }));
+        this.addDrawableChild(CyclingButtonWidget.onOffBuilder(ChatOptimizerConfig.mentionHighlightEnabled)
+            .build(x, top + row * 4, bw, 20, Text.translatable("screen.chatoptimizer.mention_highlight"), (btn, v) -> {
+                ChatOptimizerConfig.setMentionHighlightEnabled(v); ChatOptimizerConfig.save();
+            }));
+        this.addDrawableChild(CyclingButtonWidget.onOffBuilder(ChatOptimizerConfig.mentionSoundEnabled)
+            .build(x, top + row * 5, bw, 20, Text.translatable("screen.chatoptimizer.mention_sound"), (btn, v) -> {
+                ChatOptimizerConfig.setMentionSoundEnabled(v); ChatOptimizerConfig.save();
             }));
     }
 
