@@ -1,0 +1,15 @@
+.gradle/
+build/
+runs/
+reports/
+out/
+assets/
+data/
+META-INF/
+*.class
+mcplogo.png
+neoforged_logo.png
+neoforge.mixins.json
+url.png
+pack.mcmeta
+!gradle/wrapper/gradle-wrapper.jar
