@@ -7,14 +7,15 @@ import java.util.List;
 import java.util.Objects;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.client.gui.hud.ChatHudLine;
-import net.minecraft.client.gui.hud.MessageIndicator;
-import net.minecraft.network.message.MessageSignatureData;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.collection.ArrayListDeque;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.multiplayer.chat.GuiMessage;
+import net.minecraft.client.multiplayer.chat.GuiMessageSource;
+import net.minecraft.client.multiplayer.chat.GuiMessageTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MessageSignature;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.ArrayListDeque;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,40 +25,41 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(value=EnvType.CLIENT)
-@Mixin(value={ChatHud.class})
+@Mixin(value={ChatComponent.class})
 public class ChatHudMixin {
-    @Shadow @Final private ArrayListDeque<String> messageHistory;
-    @Shadow @Final private List<ChatHudLine> messages;
+    @Shadow @Final private ArrayListDeque<String> recentChat;
+    @Shadow @Final private List<GuiMessage> allMessages;
 
     @Unique private String chatoptimizer$lastCollapsedMessage;
-    @Unique private Text   chatoptimizer$lastCollapsedBaseText;
-    @Unique private int    chatoptimizer$duplicateCount = 1;
+    @Unique private Component chatoptimizer$lastCollapsedBaseText;
+    @Unique private int chatoptimizer$duplicateCount = 1;
 
-    @Shadow private void refresh() {}
+    @Shadow public void rescaleChat() {}
 
     // ─── Message history (T-arrow-up) ────────────────────────────────────────
 
-    @Inject(method={"addToMessageHistory"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method={"addRecentChat"}, at={@At(value="HEAD")}, cancellable=true)
     private void chatoptimizer$skipDuplicateHistory(String message, CallbackInfo ci) {
         if (ChatOptimizerConfig.collapseDuplicateMessages
-                && Objects.equals(message, this.messageHistory.peekLast())) {
+                && Objects.equals(message, this.recentChat.peekLast())) {
             ci.cancel();
         }
     }
 
-    @Inject(method={"addToMessageHistory"}, at={@At(value="TAIL")})
+    @Inject(method={"addRecentChat"}, at={@At(value="TAIL")})
     private void chatoptimizer$trimHistory(String message, CallbackInfo ci) {
         if (!ChatOptimizerConfig.trimChatHistory) return;
-        while (this.messageHistory.size() > ChatOptimizerConfig.maxChatHistoryEntries) {
-            this.messageHistory.removeFirst();
+        while (this.recentChat.size() > ChatOptimizerConfig.maxChatHistoryEntries) {
+            this.recentChat.removeFirst();
         }
     }
 
     // ─── Incoming chat messages ───────────────────────────────────────────────
 
-    @Inject(method={"addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V"}, at={@At(value="HEAD")}, cancellable=true)
-    private void chatoptimizer$filterMessage(Text message, MessageSignatureData sig,
-                                             MessageIndicator indicator, CallbackInfo ci) {
+    @Inject(method={"addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/multiplayer/chat/GuiMessageSource;Lnet/minecraft/client/multiplayer/chat/GuiMessageTag;)V"},
+            at={@At(value="HEAD")}, cancellable=true)
+    private void chatoptimizer$filterMessage(Component message, MessageSignature sig,
+                                             GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
         if (!ChatOptimizerConfig.filterEnabled) return;
         String raw = message.getString();
         for (String player : ChatOptimizerConfig.blockedPlayers) {
@@ -69,49 +71,53 @@ public class ChatHudMixin {
         }
     }
 
-    @Inject(method={"addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V"}, at={@At(value="HEAD")}, cancellable=true)
-    private void chatoptimizer$collapseDuplicates(Text message, MessageSignatureData sig,
-                                                  MessageIndicator indicator, CallbackInfo ci) {
+    @Inject(method={"addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/multiplayer/chat/GuiMessageSource;Lnet/minecraft/client/multiplayer/chat/GuiMessageTag;)V"},
+            at={@At(value="HEAD")}, cancellable=true)
+    private void chatoptimizer$collapseDuplicates(Component message, MessageSignature sig,
+                                                  GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
         if (ci.isCancelled()) return;
-        if (!ChatOptimizerConfig.collapseDuplicateMessages || this.messages.isEmpty()) return;
-        ChatHudLine lastLine = this.messages.get(this.messages.size() - 1);
+        if (!ChatOptimizerConfig.collapseDuplicateMessages || this.allMessages.isEmpty()) return;
+        GuiMessage lastLine = this.allMessages.get(this.allMessages.size() - 1);
         String msgStr = message.getString();
         if (Objects.equals(this.chatoptimizer$lastCollapsedMessage, msgStr)) {
             ++this.chatoptimizer$duplicateCount;
-            Text updated = chatoptimizer$buildRepeated(
+            Component updated = chatoptimizer$buildRepeated(
                 this.chatoptimizer$lastCollapsedBaseText, this.chatoptimizer$duplicateCount);
-            this.messages.set(this.messages.size() - 1,
-                new ChatHudLine(lastLine.creationTick(), updated, lastLine.signature(), lastLine.indicator()));
-            this.refresh();
+            this.allMessages.set(this.allMessages.size() - 1,
+                new GuiMessage(lastLine.addedTime(), updated, lastLine.signature(), lastLine.source(), lastLine.tag()));
+            this.rescaleChat();
             ci.cancel();
         }
     }
 
-    @Inject(method={"addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V"}, at={@At(value="TAIL")})
-    private void chatoptimizer$trackLastMessage(Text message, MessageSignatureData sig,
-                                                MessageIndicator indicator, CallbackInfo ci) {
+    @Inject(method={"addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/multiplayer/chat/GuiMessageSource;Lnet/minecraft/client/multiplayer/chat/GuiMessageTag;)V"},
+            at={@At(value="TAIL")})
+    private void chatoptimizer$trackLastMessage(Component message, MessageSignature sig,
+                                                GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
         this.chatoptimizer$lastCollapsedMessage  = message.getString();
         this.chatoptimizer$lastCollapsedBaseText = message;
         this.chatoptimizer$duplicateCount        = 1;
     }
 
-    @Inject(method={"addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V"}, at={@At(value="TAIL")})
-    private void chatoptimizer$logMessage(Text message, MessageSignatureData sig,
-                                          MessageIndicator indicator, CallbackInfo ci) {
+    @Inject(method={"addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/multiplayer/chat/GuiMessageSource;Lnet/minecraft/client/multiplayer/chat/GuiMessageTag;)V"},
+            at={@At(value="TAIL")})
+    private void chatoptimizer$logMessage(Component message, MessageSignature sig,
+                                          GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
         ChatLogger.log(message);
     }
 
-    @Inject(method={"addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V"}, at={@At(value="TAIL")})
-    private void chatoptimizer$bufferForSearch(Text message, MessageSignatureData sig,
-                                               MessageIndicator indicator, CallbackInfo ci) {
+    @Inject(method={"addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/multiplayer/chat/GuiMessageSource;Lnet/minecraft/client/multiplayer/chat/GuiMessageTag;)V"},
+            at={@At(value="TAIL")})
+    private void chatoptimizer$bufferForSearch(Component message, MessageSignature sig,
+                                               GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
         ChatSearch.addMessage(message.getString());
     }
 
     @Unique
-    private Text chatoptimizer$buildRepeated(Text base, int count) {
+    private Component chatoptimizer$buildRepeated(Component base, int count) {
         if (count <= 1) return base;
-        MutableText suffix = Text.translatable("chatoptimizer.repeat_count", count)
-            .formatted(Formatting.DARK_GRAY);
-        return base.copy().append(Text.literal(" ")).append(suffix);
+        MutableComponent suffix = Component.translatable("chatoptimizer.repeat_count", count)
+            .withStyle(ChatFormatting.DARK_GRAY);
+        return base.copy().append(Component.literal(" ")).append(suffix);
     }
 }

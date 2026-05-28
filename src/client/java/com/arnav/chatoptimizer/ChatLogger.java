@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 @Environment(value=EnvType.CLIENT)
 public final class ChatLogger {
@@ -19,7 +19,7 @@ public final class ChatLogger {
 
     private ChatLogger() {}
 
-    public static void log(Text message) {
+    public static void log(Component message) {
         if (!ChatOptimizerConfig.chatLoggingEnabled) return;
         try {
             Path logFile = logFile();

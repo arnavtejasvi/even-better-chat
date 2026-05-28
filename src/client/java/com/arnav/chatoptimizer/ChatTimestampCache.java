@@ -6,9 +6,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ConcurrentHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.FormattedCharSequence;
 
 @Environment(value=EnvType.CLIENT)
 public final class ChatTimestampCache {
@@ -39,11 +39,11 @@ public final class ChatTimestampCache {
             default    -> "[" + time + "] ";
         };
 
-        MutableText text = Text.literal(formatted)
-            .styled(style -> style.withColor(ChatOptimizerConfig.timestampColor));
-        return new TimestampEntry(text.asOrderedText(), text);
+        MutableComponent text = Component.literal(formatted)
+            .withStyle(style -> style.withColor(ChatOptimizerConfig.timestampColor));
+        return new TimestampEntry(text.getVisualOrderText(), text);
     }
 
     @Environment(value=EnvType.CLIENT)
-    public record TimestampEntry(OrderedText orderedText, Text text) {}
+    public record TimestampEntry(FormattedCharSequence orderedText, Component text) {}
 }

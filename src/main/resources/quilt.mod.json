@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "quilt_loader": {
+    "group": "com.arnav",
+    "id": "chatoptimizer",
+    "version": "${version}",
+    "metadata": {
+      "name": "Even Better Chat",
+      "description": "Client-side chat quality-of-life improvements.",
+      "contributors": { "arnav": "Owner" },
+      "license": "MIT"
+    },
+    "intermediate_mappings": "net.fabricmc:intermediary",
+    "entrypoints": {
+      "client_init": ["com.arnav.chatoptimizer.ChatOptimizerClient"]
+    },
+    "depends": [
+      { "id": "quilt_loader", "versions": ">=0.18.0" },
+      { "id": "quilted_fabric_api", "versions": "*" },
+      { "id": "minecraft", "versions": "~26.1" }
+    ]
+  },
+  "mixin": ["chatoptimizer.client.mixins.json"]
+}
